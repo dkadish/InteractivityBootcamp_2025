@@ -7,7 +7,12 @@
 let state = Object.freeze({});
 
 // The settings should contain all of the "fixed" parts of your programs, like static HTMLElements and paramaters.
-const settings = Object.freeze({});
+const settings = Object.freeze({
+  x: 500,
+  y: 250,
+  width: 200,
+  height: 200,
+});
 
 /**
  * Update the state object with the properties included in `newState`.
@@ -48,6 +53,16 @@ function use() {
  * Setup is run once, at the start of the program. It sets everything up for us!
  */
 function setup() {
+  const body = document.querySelector("body");
+
+  const circle = document.createElement("div");
+  circle.style.width = `${settings.width}px`;
+  circle.style.height = `${settings.height}px`;
+  circle.style.transform = `translate(${settings.x}px, ${settings.y}px)`;
+  circle.style.backgroundColor = "blue";
+  circle.style.borderRadius = "50%";
+  body.appendChild(circle);
+
   setTimeout(update, 50);
   window.requestAnimationFrame(use);
 }
