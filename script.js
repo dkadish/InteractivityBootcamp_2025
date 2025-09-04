@@ -5,8 +5,16 @@
 
 // The state should contain all the "moving" parts of your program, values that change.
 let state = Object.freeze({
-  hue: 0, // Of the large circle (0-360)
-  lightness: 50, // Of the small circle (%)
+  circleA: {
+    hue: 0, // Of the large circle (0-360)
+    element: null, // The HTMLElement for the large circle
+  },
+  circleB: {
+    lightness: 50, // Of the small circle (%)
+    width: 200,
+    height: 200,
+    element: null, // The HTMLElement for the large circle
+  },
 });
 
 // The settings should contain all of the "fixed" parts of your programs, like static HTMLElements and parameters.
@@ -32,19 +40,30 @@ function updateState(newState) {
  */
 function update() {
   // Uncomment the lines below to destructure your state and settings variables, if necessary
-  const { hue, lightness } = state;
+  const { circleA, circleB } = state;
   const { increment } = settings;
 
-  let newHue = hue + increment;
-
+  let newHue = circleA.hue + increment;
   let newLightness = 100;
-  if (lightness < 100) {
-    newLightness = lightness / 1.001;
+  if (circleB.lightness > 0) {
+    newLightness = circleB.lightness / 1.001;
   }
-  // Uncomment the line below to update your state variable, if necessary
-  updateState({ hue: newHue, lightness: newLightness });
 
-  setTimeout(update, 10);
+  // Uncomment the line below to update your state variable, if necessary
+  updateState({
+    circleA: {
+      ...circleA,
+      hue: newHue,
+    },
+    circleB: {
+      ...circleB,
+      lightness: newLightness,
+      width: 200 * circleB.mouseX,
+      height: 200 * circleB.mouseY,
+    },
+  });
+
+  setTimeout(update, 1);
 }
 
 /**
@@ -53,13 +72,14 @@ function update() {
  */
 function use() {
   // Uncomment the lines below to destructure your state and settings variables, if necessary
-  const { hue, lightness, circle } = state;
+  const { circleA, circleB } = state;
   // const {  } = settings;
 
-  circle.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+  circleA.element.style.backgroundColor = `hsl(${circleA.hue}, 100%, 50%)`;
 
-  let smallCircle = document.querySelector(".circle");
-  smallCircle.style.backgroundColor = `hsl(0, 100%, ${lightness}%)`;
+  circleB.element.style.backgroundColor = `hsl(0, 100%, ${circleB.lightness}%)`;
+  circleB.element.style.width = `${circleB.width}px`;
+  circleB.element.style.height = `${circleB.height}px`;
 
   window.requestAnimationFrame(use);
 }
@@ -68,6 +88,22 @@ function use() {
  * Setup is run once, at the start of the program. It sets everything up for us!
  */
 function setup() {
+  const { circleA, circleB } = state;
+
+  // Create Event Listeners
+  document.addEventListener("pointermove", (event) => {
+    const x = event.clientX / window.innerWidth;
+    const y = event.clientY / window.innerHeight;
+    updateState({
+      circleB: {
+        ...circleB,
+        mouseX: x,
+        mouseY: y,
+      },
+    });
+  });
+
+  // Make a circle and add it to the state
   const body = document.querySelector("body");
 
   const circle = document.createElement("div");
@@ -78,7 +114,12 @@ function setup() {
   circle.style.borderRadius = "50%";
   body.appendChild(circle);
 
-  updateState({ circle });
+  circleA.element = circle;
+
+  let smallCircle = document.querySelector(".circle");
+  circleB.element = smallCircle;
+
+  updateState({ circleA: circleA, circleB: circleB });
 
   setTimeout(update, 50);
   window.requestAnimationFrame(use);
