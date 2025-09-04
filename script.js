@@ -11,10 +11,10 @@ let state = Object.freeze({
   },
   circleB: {
     lightness: 50, // Of the small circle (%)
-    // mouseX: 0.5, // Normalized mouse X position (0-1)
-    // mouseY: 0.5, // Normalized mouse Y position (0-1)
-    // width: 200,
-    // height: 200,
+    mouseX: 0.5, // Normalized mouse X position (0-1)
+    mouseY: 0.5, // Normalized mouse Y position (0-1)
+    width: 200,
+    height: 200,
     element: null, // The HTMLElement for the large circle
   },
 });
@@ -51,6 +51,16 @@ function update() {
     newLightness = circleB.lightness / 1.001;
   }
 
+  let diffX = circleB.mouseX - circleB.prevX;
+  let diffY = circleB.mouseY - circleB.prevY;
+  let maxDiff = Math.max(Math.abs(diffX), Math.abs(diffY));
+
+  if (2000 * maxDiff > circleB.width) {
+    circleB.width = 2000 * maxDiff;
+  } else {
+    circleB.width *= 0.99;
+  }
+
   // Uncomment the line below to update your state variable, if necessary
   updateState({
     circleA: {
@@ -60,8 +70,8 @@ function update() {
     circleB: {
       ...circleB,
       lightness: newLightness,
-      width: 200 * circleB.mouseX,
-      height: 200 * circleB.mouseY,
+      width: circleB.width,
+      height: circleB.width,
     },
   });
 
@@ -93,12 +103,16 @@ function setup() {
   // Create Event Listeners
   document.addEventListener("pointermove", (event) => {
     const { circleB } = state;
+    const { mouseX, mouseY } = circleB;
+
     const x = event.clientX / window.innerWidth;
     const y = event.clientY / window.innerHeight;
 
     updateState({
       circleB: {
         ...circleB,
+        prevX: mouseX,
+        prevY: mouseY,
         mouseX: x,
         mouseY: y,
       },
