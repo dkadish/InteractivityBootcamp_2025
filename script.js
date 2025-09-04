@@ -4,14 +4,18 @@
  */
 
 // The state should contain all the "moving" parts of your program, values that change.
-let state = Object.freeze({});
+let state = Object.freeze({
+  hue: 0, // Of the large circle (0-360)
+  lightness: 50, // Of the small circle (%)
+});
 
-// The settings should contain all of the "fixed" parts of your programs, like static HTMLElements and paramaters.
+// The settings should contain all of the "fixed" parts of your programs, like static HTMLElements and parameters.
 const settings = Object.freeze({
   x: 500,
   y: 250,
   width: 200,
   height: 200,
+  increment: 1,
 });
 
 /**
@@ -28,11 +32,17 @@ function updateState(newState) {
  */
 function update() {
   // Uncomment the lines below to destructure your state and settings variables, if necessary
-  // const {  } = state;
-  // const {  } = settings;
+  const { hue, lightness } = state;
+  const { increment } = settings;
 
+  let newHue = hue + increment;
+
+  let newLightness = 100;
+  if (lightness < 100) {
+    newLightness = lightness / 1.001;
+  }
   // Uncomment the line below to update your state variable, if necessary
-  // updateState({  });
+  updateState({ hue: newHue, lightness: newLightness });
 
   setTimeout(update, 10);
 }
@@ -43,8 +53,13 @@ function update() {
  */
 function use() {
   // Uncomment the lines below to destructure your state and settings variables, if necessary
-  // const {  } = state;
+  const { hue, lightness, circle } = state;
   // const {  } = settings;
+
+  circle.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+
+  let smallCircle = document.querySelector(".circle");
+  smallCircle.style.backgroundColor = `hsl(0, 100%, ${lightness}%)`;
 
   window.requestAnimationFrame(use);
 }
@@ -59,9 +74,11 @@ function setup() {
   circle.style.width = `${settings.width}px`;
   circle.style.height = `${settings.height}px`;
   circle.style.transform = `translate(${settings.x}px, ${settings.y}px)`;
-  circle.style.backgroundColor = "blue";
+  circle.style.backgroundColor = "hsl(0, 100%, 50%)";
   circle.style.borderRadius = "50%";
   body.appendChild(circle);
+
+  updateState({ circle });
 
   setTimeout(update, 50);
   window.requestAnimationFrame(use);
