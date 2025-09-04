@@ -11,8 +11,10 @@ let state = Object.freeze({
   },
   circleB: {
     lightness: 50, // Of the small circle (%)
-    width: 200,
-    height: 200,
+    // mouseX: 0.5, // Normalized mouse X position (0-1)
+    // mouseY: 0.5, // Normalized mouse Y position (0-1)
+    // width: 200,
+    // height: 200,
     element: null, // The HTMLElement for the large circle
   },
 });
@@ -63,7 +65,7 @@ function update() {
     },
   });
 
-  setTimeout(update, 1);
+  setTimeout(update, 10);
 }
 
 /**
@@ -88,12 +90,12 @@ function use() {
  * Setup is run once, at the start of the program. It sets everything up for us!
  */
 function setup() {
-  const { circleA, circleB } = state;
-
   // Create Event Listeners
   document.addEventListener("pointermove", (event) => {
+    const { circleB } = state;
     const x = event.clientX / window.innerWidth;
     const y = event.clientY / window.innerHeight;
+
     updateState({
       circleB: {
         ...circleB,
@@ -103,12 +105,15 @@ function setup() {
     });
   });
 
+  const { circleA, circleB } = state;
+  const { width, height } = settings;
+
   // Make a circle and add it to the state
   const body = document.querySelector("body");
 
   const circle = document.createElement("div");
-  circle.style.width = `${settings.width}px`;
-  circle.style.height = `${settings.height}px`;
+  circle.style.width = `${width}px`;
+  circle.style.height = `${height}px`;
   circle.style.transform = `translate(${settings.x}px, ${settings.y}px)`;
   circle.style.backgroundColor = "hsl(0, 100%, 50%)";
   circle.style.borderRadius = "50%";
